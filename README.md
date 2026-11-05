@@ -22,7 +22,11 @@ It's a static site with no build step:
 python -m http.server 5317
 ```
 
-Then open http://localhost:5317. It also works on GitHub Pages (Settings → Pages → deploy from `main`, root folder).
+Then open http://localhost:5317.
+
+## Deploy (Vercel)
+
+Import this repo at [vercel.com/new](https://vercel.com/new) with the **Other** framework preset, no build command, and the root directory as the output. Every push to `main` then redeploys automatically. `vercel.json` makes browsers always revalidate the files, so you never get a stale `app.js` after an update.
 
 The whiteboard loads React and Excalidraw from unpkg the first time, so it needs internet. Everything else works offline.
 
