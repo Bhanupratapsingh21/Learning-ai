@@ -197,7 +197,6 @@ h3 { font-family: var(--serif); font-weight: 500; font-size: 20px; margin: 0; }
 .track-card { display: block; transition: transform .12s ease, box-shadow .15s ease, border-color .15s; }
 .track-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--faint); }
 .track-card + .track-card { margin-top: 0; }
-.tc-emoji { font-size: 26px; line-height: 1; }
 button.status-ico { background: transparent; cursor: pointer; color: inherit; }
 button.status-ico:hover { border-color: var(--green); }
 button.status-ico.done { background: var(--green); color: #fff; }

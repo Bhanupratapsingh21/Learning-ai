@@ -85,10 +85,9 @@
     confetti();
     const st = C.streaks();
     const nxt = C.summary().next;
-    modal(`<div class="big">${after.n > before.n ? "🏆" : "🎉"}</div>
-      <h2 style="margin:6px 0 4px">${after.n > before.n ? `Level ${after.n} — ${esc(after.title)}` : "Session complete"}</h2>
+    modal(`<h2 style="margin:0 0 4px">${after.n > before.n ? `Level ${after.n} — ${esc(after.title)}` : "Session complete"}</h2>
       <p class="muted" style="margin:0 0 4px">${esc(sessionLabel(s))} · ${esc(s.title)}</p>
-      <p style="margin:10px 0"><span class="chip blue">+${gain} XP</span> <span class="chip amber">🔥 ${st.current}-day streak</span></p>
+      <p style="margin:10px 0"><span class="chip blue">+${gain} XP</span> <span class="chip amber">${st.current}-day streak</span></p>
       ${nxt ? `<p class="small muted">Next: <b>${esc(nxt.s.title)}</b> · ${esc(D.fmt(nxt.date))}</p>` : `<p>You finished the whole roadmap. Go get that offer.</p>`}
       <div class="actions" style="justify-content:center"><button class="btn primary" data-close>Nice</button></div>`);
   }
@@ -113,7 +112,7 @@
   function statsRow(sum) {
     const st = C.streaks(), xp = C.xp(), lv = C.level(xp);
     return `<div class="grid4">
-      <div class="stat"><div class="v"><span class="flame ${st.doneToday ? "on" : ""}">🔥</span> ${st.current}</div><div class="k">day streak · best ${st.best}</div></div>
+      <div class="stat"><div class="v">${st.current}</div><div class="k">day streak · best ${st.best}</div></div>
       <div class="stat"><div class="v">${xp.toLocaleString()}</div><div class="k">XP · Lv ${lv.n}</div></div>
       <div class="stat"><div class="v">${sum.pct}%</div><div class="k">${sum.doneCount}/${sum.total} sessions</div></div>
       <div class="stat"><div class="v">${sum.daysLeft}</div><div class="k">days to finish</div></div>
@@ -133,7 +132,7 @@
 
     let todayCard;
     if (!next) {
-      todayCard = `<div class="card hero"><div class="label">All done</div><h2 style="margin-top:6px">Roadmap complete 🎓</h2><p class="muted">Keep the outreach running.</p></div>`;
+      todayCard = `<div class="card hero"><div class="label">All done</div><h2 style="margin-top:6px">Roadmap complete</h2><p class="muted">Keep the outreach running.</p></div>`;
     } else {
       const s = next.s, x = C.state.sessions[s.id] || {};
       const checks = x.checks || {};
@@ -141,7 +140,7 @@
       const doneChecks = Object.values(checks).filter(Boolean).length;
       let head;
       if (isToday) head = `<span class="chip blue"><span class="dot"></span> Today · ${D.fmt(sum.today)}</span>`;
-      else if (sum.freeToday) head = `<span class="chip amber">☕ Free day today · next session ${D.rel(next.date)}</span>`;
+      else if (sum.freeToday) head = `<span class="chip amber">Free day today · next session ${D.rel(next.date)}</span>`;
       else if (sum.doneTodayItem) head = `<span class="chip green">✓ Done for today · next ${D.rel(next.date)}</span>`;
       else head = `<span class="chip">${D.fmt(next.date)}</span>`;
       todayCard = `
@@ -149,7 +148,7 @@
       <div class="card hero today">
         <div class="today-top">${head}<span class="chip">${s.minutes} min</span></div>
         <div class="label" style="margin-top:14px">${esc(sessionLabel(s))} · ${esc(s.weekTitle)}</div>
-        <h2>${esc(s.title)}${s.project ? " 🚢" : ""}</h2>
+        <h2>${esc(s.title)}</h2>
         ${totalChecks ? `<div class="row small muted" style="margin-top:6px"><div class="bar green grow" style="max-width:220px"><i style="width:${Math.round((doneChecks / totalChecks) * 100)}%"></i></div>${doneChecks}/${totalChecks} items</div>` : ""}
         <ul class="learn-preview">${s.learn.slice(0, 5).map((l) => `<li>${esc(l)}</li>`).join("")}</ul>
         ${s.done ? `<p class="small" style="margin:12px 0 0"><span class="muted">Done when —</span> ${esc(s.done)}</p>` : ""}
@@ -171,7 +170,7 @@
 
     app.innerHTML = `<div class="wrap">
       <a class="small muted row" href="#/" style="gap:4px;margin-bottom:14px">${ICON.back.replace("<svg", '<svg width="14" height="14"')} All tracks</a>
-      <h1>✨ AI</h1>
+      <h1>AI</h1>
       <div class="muted">${esc(R.title)} — Learn, build, ship.</div>
       <div class="small faint" style="margin-top:2px">${esc(R.stack)}</div>
 
@@ -212,7 +211,7 @@
 
       <div class="section">
         <div class="section-title"><h2>Badges</h2><span class="small muted">${C.badges().filter((b) => b.got).length}/${C.badges().length}</span></div>
-        <div class="badges">${C.badges().map((b) => `<div class="badge ${b.got ? "" : "locked"}" title="${esc(b.desc)}"><div class="e">${b.icon}</div><div class="nm">${esc(b.name)}</div><div class="ds">${esc(b.desc)}</div></div>`).join("")}</div>
+        <div class="badges">${C.badges().map((b) => `<div class="badge ${b.got ? "" : "locked"}"><div class="nm">${esc(b.name)}</div><div class="ds">${esc(b.desc)}</div><div class="tiny" style="margin-top:6px;color:${b.got ? "var(--green)" : "var(--faint)"}">${b.got ? "Unlocked" : "Locked"}</div></div>`).join("")}</div>
       </div>
     </div>`;
 
@@ -334,22 +333,20 @@
 
     const aiNext = sum.next;
     const aiCard = `<a class="card track-card" href="#/ai">
-      <div class="row between"><span class="tc-emoji">✨</span><span class="chip blue">${sum.pct}%</span></div>
-      <h3 style="margin-top:10px">AI</h3>
+      <div class="row between"><h3>AI</h3><span class="chip blue">${sum.pct}%</span></div>
       <div class="small muted">AI Full-Stack / FDE roadmap · ends ${D.fmt(sum.end)}</div>
       <div class="bar" style="margin-top:12px"><i style="width:${sum.pct}%"></i></div>
-      <div class="small" style="margin-top:10px">${aiNext ? `<span class="muted">${aiNext.date === sum.today ? "Today" : D.fmt(aiNext.date)}:</span> W${aiNext.s.week}·S${aiNext.s.num} ${esc(aiNext.s.title)}` : "Roadmap complete 🎓"}</div>
+      <div class="small" style="margin-top:10px">${aiNext ? `<span class="muted">${aiNext.date === sum.today ? "Today" : D.fmt(aiNext.date)}:</span> W${aiNext.s.week}·S${aiNext.s.num} ${esc(aiNext.s.title)}` : "Roadmap complete"}</div>
       <div class="tiny faint" style="margin-top:4px">${sum.doneCount}/${sum.total} sessions</div>
     </a>`;
 
     const trackCard = (t) => {
       const s = T.stats(t.id);
       return `<a class="card track-card" href="#/t/${t.id}">
-        <div class="row between"><span class="tc-emoji">${t.emoji}</span><span class="chip ${s.pct === 100 ? "green" : ""}">${s.pct}%</span></div>
-        <h3 style="margin-top:10px">${esc(t.name)}</h3>
+        <div class="row between"><h3>${esc(t.name)}</h3><span class="chip ${s.pct === 100 ? "green" : ""}">${s.pct}%</span></div>
         <div class="small muted">${esc(t.tagline)}</div>
         <div class="bar green" style="margin-top:12px"><i style="width:${s.pct}%"></i></div>
-        <div class="small" style="margin-top:10px">${s.next ? `<span class="muted">${T.statusOf(s.next.id) === "doing" ? "In progress" : "Next"}:</span> ${esc(s.next.title)}` : "All done 🎉"}</div>
+        <div class="small" style="margin-top:10px">${s.next ? `<span class="muted">${T.statusOf(s.next.id) === "doing" ? "In progress" : "Next"}:</span> ${esc(s.next.title)}` : "All done"}</div>
         <div class="tiny faint" style="margin-top:4px">${s.done}/${s.total} ${t.itemWord}s</div>
       </a>`;
     };
@@ -360,7 +357,7 @@
       <div class="small faint" style="margin-top:2px">AI · DSA · System Design · Full-stack</div>
 
       <div class="section grid4">
-        <div class="stat"><div class="v"><span class="flame ${os.today ? "on" : ""}">🔥</span> ${os.current}</div><div class="k">day streak, all tracks</div></div>
+        <div class="stat"><div class="v">${os.current}</div><div class="k">day streak, all tracks</div></div>
         <div class="stat"><div class="v">${xp.toLocaleString()}</div><div class="k">total XP · Lv ${lv.n}</div></div>
         <div class="stat"><div class="v">${os.today}</div><div class="k">finished today</div></div>
         <div class="stat"><div class="v">${Math.round((doneAll / totalAll) * 100)}%</div><div class="k">${doneAll}/${totalAll} overall</div></div>
@@ -395,10 +392,9 @@
     const after = C.level(totalXp());
     confetti();
     const s = T.stats(t.id), os = T.overallStreak();
-    modal(`<div class="big">${after.n > before.n ? "🏆" : t.emoji}</div>
-      <h2 style="margin:6px 0 4px">${after.n > before.n ? `Level ${after.n} — ${esc(after.title)}` : "Nice — done!"}</h2>
+    modal(`<h2 style="margin:0 0 4px">${after.n > before.n ? `Level ${after.n} — ${esc(after.title)}` : "Nice — done!"}</h2>
       <p class="muted" style="margin:0 0 4px">${esc(it.title)}</p>
-      <p style="margin:10px 0"><span class="chip blue">+${t.xp} XP</span> <span class="chip amber">🔥 ${os.current}-day streak</span></p>
+      <p style="margin:10px 0"><span class="chip blue">+${t.xp} XP</span> <span class="chip amber">${os.current}-day streak</span></p>
       <p class="small muted">${esc(t.name)}: ${s.done}/${s.total}${s.next ? ` · next: <b>${esc(s.next.title)}</b>` : " — track complete!"}</p>
       <div class="actions" style="justify-content:center">${s.next ? `<a class="btn primary" data-close href="#/t/${t.id}/${s.next.id}">Next ${t.itemWord}</a>` : ""}<button class="btn" data-close>Close</button></div>`);
   }
@@ -416,12 +412,12 @@
         <span class="num">#${it.n}</span>
         <span class="title">${esc(it.title)}</span>
         ${st === "doing" ? `<span class="chip blue">in progress</span>` : ""}
-        ${T.rec(it.id).notes ? `<span class="tiny faint" title="Has notes">📝</span>` : ""}
+        ${T.rec(it.id).notes ? `<span class="tiny faint">notes</span>` : ""}
       </div>`;
     };
     app.innerHTML = `<div class="wrap">
       ${crumb("#/", "All tracks")}
-      <h1>${t.emoji} ${esc(t.name)}</h1>
+      <h1>${esc(t.name)}</h1>
       <div class="muted">${esc(t.tagline)}</div>
       <div class="row" style="margin-top:14px"><div class="bar green grow"><i style="width:${s.pct}%"></i></div><span class="small mono">${s.done}/${s.total}</span></div>
 
@@ -433,7 +429,7 @@
           <a class="btn primary" href="#/ts/${tid}/${nxt.id}">${ICON.play} Let's start</a>
           <button class="btn" data-donebig="${nxt.id}">${ICON.check} Mark done</button>
           <a class="btn" href="#/t/${tid}/${nxt.id}">Details</a>
-        </div></div></div>` : `<div class="section"><div class="card hero"><h2>Track complete 🎉</h2><p class="muted">Every ${t.itemWord} is done.</p></div></div>`}
+        </div></div></div>` : `<div class="section"><div class="card hero"><h2>Track complete</h2><p class="muted">Every ${t.itemWord} is done.</p></div></div>`}
 
       <div class="section row" id="filters">
         ${["all", "todo", "done"].map((f) => `<button class="btn sm ${trackFilter === f ? "primary" : ""}" data-filter="${f}">${f === "all" ? "All" : f === "todo" ? "To do" : "Done"}</button>`).join("")}
@@ -517,7 +513,7 @@
       <div class="section"><div class="section-title"><h3>${t.codeNotes ? "Approach & code" : "Notes"}</h3><span class="tiny faint" id="saved">autosaves</span></div>
         <textarea class="note ${t.codeNotes ? "mono" : ""}" id="tnote" style="min-height:${t.codeNotes ? 240 : 160}px" placeholder="${t.codeNotes ? "Approach, code, time & space complexity, edge cases…" : "Key takeaways, trade-offs, links…"}">${esc(r.notes || "")}</textarea>
         <div class="row" style="margin-top:8px"><button class="btn sm" id="copyNote">${ICON.copy} Copy</button>
-        ${localStorage.getItem(C.BOARD_PREFIX + "t." + id) ? `<a class="btn sm" href="#/ts/${tid}/${id}">🎨 Open whiteboard</a>` : ""}</div>
+        ${localStorage.getItem(C.BOARD_PREFIX + "t." + id) ? `<a class="btn sm" href="#/ts/${tid}/${id}">Open whiteboard</a>` : ""}</div>
       </div>
       <div class="section row between">
         ${prev ? `<a class="btn sm" href="#/t/${tid}/${prev.id}">← #${prev.n}</a>` : "<span></span>"}
@@ -542,7 +538,7 @@
     app.innerHTML = `<div class="study">
       <div class="study-bar">
         <a class="icon-btn" href="#/t/${tid}/${id}" title="Back">${ICON.back}</a>
-        <div class="ttl"><div class="tiny muted">${t.emoji} ${esc(t.name)} · #${it.n}</div><b>${esc(it.title)}</b></div>
+        <div class="ttl"><div class="tiny muted">${esc(t.name)} · #${it.n}</div><b>${esc(it.title)}</b></div>
         <span class="timer" id="timer">00:00</span>
         <button class="icon-btn" id="tToggle" title="Start / pause timer">${ICON.play}</button>
         <button class="icon-btn" id="tReset" title="Reset timer">${ICON.reset}</button>
@@ -624,7 +620,7 @@
           ${w.rule ? `<div class="small" style="margin:4px 0 8px"><span class="chip blue">Rule</span> ${esc(w.rule)}</div>` : ""}
           ${ws.map((it) => { const isNow = sum.next && sum.next.s.id === it.s.id; return `<a class="srow ${isNow ? "current" : ""}" href="#/s/${it.s.id}">
             ${statusIco(it.status, isNow)}<span class="num">S${it.s.num}</span>
-            <span class="title">${esc(it.s.title)}${it.s.project ? " 🚢" : ""}</span>
+            <span class="title">${esc(it.s.title)}${it.s.project ? ' <span class="chip">project</span>' : ""}</span>
             <span class="when">${it.status === "pending" ? `${D.fmt(it.date)}` : it.date ? `✓ ${D.fmt(it.date)}` : "✓ earlier"}</span></a>`; }).join("")}
           <div class="srow" style="cursor:default"><span class="status-ico" style="border-style:dashed"></span><span class="num">Free</span>
             <span class="title small muted">${esc(w.free)}</span><span class="when">${free && free.date ? D.fmt(free.date) : "—"}</span></div>
@@ -667,7 +663,7 @@
     app.innerHTML = `<div class="wrap">
       <a class="small muted row" href="#/roadmap" style="gap:4px">${ICON.back.replace("<svg", '<svg width="14" height="14"')} Roadmap</a>
       <div class="label" style="margin-top:18px">${esc(sessionLabel(s))} · ${esc(s.weekTitle)} · ${s.minutes} min</div>
-      <h1 style="margin-top:6px">${esc(s.title)}${s.project ? " 🚢" : ""}</h1>
+      <h1 style="margin-top:6px">${esc(s.title)}</h1>
       <div class="row" style="margin-top:8px">
         <span class="chip ${status === "done" ? "green" : status === "skipped" ? "" : "blue"}">${status === "done" ? "✓ Completed" : status === "skipped" ? "Skipped" : "Not completed"}</span>
         <span class="small muted">${when}</span>
@@ -688,7 +684,7 @@
       <div class="section"><div class="section-title"><h3>Notes</h3><span class="tiny faint" id="saved">autosaves</span></div>
         <textarea class="note" id="snote" style="min-height:160px" placeholder="3-line takeaway, gotchas, links…">${esc(x.notes || "")}</textarea>
         <div class="row" style="margin-top:8px"><button class="btn sm" id="copyNote">${ICON.copy} Copy notes</button>
-        ${localStorage.getItem(C.BOARD_PREFIX + id) ? `<a class="btn sm" href="#/study/${id}">🎨 Open whiteboard</a>` : ""}</div>
+        ${localStorage.getItem(C.BOARD_PREFIX + id) ? `<a class="btn sm" href="#/study/${id}">Open whiteboard</a>` : ""}</div>
       </div>
 
       <div class="section"><details><summary class="small muted" style="cursor:pointer">Tutor prompt for this session</summary>
@@ -799,7 +795,7 @@
       </div>
       ${trackNotes.length ? `<div class="section"><div class="section-title"><h2>Track notes</h2></div>
         ${trackNotes.map(({ t, it }) => `<a class="card" href="#/t/${t.id}/${it.id}" style="display:block" data-searchable>
-          <div class="label">${t.emoji} ${esc(t.name)} · #${it.n}</div><div class="serif" style="font-size:18px">${esc(it.title)}</div>
+          <div class="label">${esc(t.name)} · #${it.n}</div><div class="serif" style="font-size:18px">${esc(it.title)}</div>
           <div class="small muted ${t.codeNotes ? "mono" : ""}" style="white-space:pre-wrap;margin-top:6px;max-height:120px;overflow:hidden">${esc(T.rec(it.id).notes)}</div></a>`).join("")}</div>` : ""}
       </div>`;
     const qn = $("#qn");
@@ -835,7 +831,7 @@
       <div class="section"><div class="section-title"><h3>Eval log</h3><span class="small muted">one change → one eval run → one row</span></div>
         <div class="tablewrap"><table class="t"><thead><tr><th>Week</th><th>Project</th><th>Change</th><th>Metric</th><th>Before</th><th>After</th><th>Δ</th><th>Keep?</th><th></th></tr></thead><tbody>
         <tr class="faint"><td>ex.</td><td>RAG</td><td>Hybrid search (RRF)</td><td>recall@5</td><td>0.62</td><td>0.71</td><td>+0.09</td><td>Yes</td><td></td></tr>
-        ${ev.map((r, i) => { const d = (parseFloat(r.after) - parseFloat(r.before)); return `<tr><td>${esc(r.week)}</td><td>${esc(r.project)}</td><td>${esc(r.change)}</td><td>${esc(r.metric)}</td><td>${esc(r.before)}</td><td>${esc(r.after)}</td><td>${isFinite(d) ? (d > 0 ? "+" : "") + d.toFixed(3).replace(/0+$/, "").replace(/\.$/, "") : ""}</td><td>${esc(r.keep)}</td><td><button class="tiny-btn" data-delev="${i}">✕</button></td></tr>`; }).join("")}
+        ${ev.map((r, i) => { const d = (parseFloat(r.after) - parseFloat(r.before)); return `<tr><td>${esc(r.week)}</td><td>${esc(r.project)}</td><td>${esc(r.change)}</td><td>${esc(r.metric)}</td><td>${esc(r.before)}</td><td>${esc(r.after)}</td><td>${isFinite(d) ? (d > 0 ? "+" : "") + d.toFixed(3).replace(/0+$/, "").replace(/\.$/, "") : ""}</td><td>${esc(r.keep)}</td><td><button class="tiny-btn" data-delev="${i}">Delete</button></td></tr>`; }).join("")}
         </tbody></table></div>
         <form id="evForm" class="grid4" style="margin-top:10px">
           <input class="field" name="week" placeholder="Week" value="${wk}"><input class="field" name="project" placeholder="Project">

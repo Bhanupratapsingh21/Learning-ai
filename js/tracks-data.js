@@ -2,21 +2,21 @@
    Item ids are stable — progress is stored against them, so never renumber. */
 window.TRACKS = [
   {
-    id: "dsa", name: "DSA", emoji: "🧮", xp: 20, accent: "green",
+    id: "dsa", name: "DSA", xp: 20, accent: "green",
     tagline: "50 fundamentals — numbers, strings, arrays",
     itemWord: "question", codeNotes: true,
     groups: [
-      { name: "🔢 Numbers", items: [
+      { name: "Numbers", items: [
         "Reverse a String", "Check if a String is a Palindrome", "Check if a Number is a Palindrome", "Reverse an Integer",
         "Check if a Number is Prime", "Print Prime Numbers in a Range", "Find Factorial of a Number", "Generate Fibonacci Series",
         "Find the Nth Fibonacci Number", "Check if a Number is Armstrong", "Check if a Number is Perfect", "Find GCD of Two Numbers",
         "Find LCM of Two Numbers", "Count Digits in a Number", "Find Sum of Digits of a Number"
       ]},
-      { name: "🔤 Strings", items: [
+      { name: "Strings", items: [
         "Reverse Words in a String", "Count Vowels and Consonants", "Count Frequency of Characters", "Find Duplicate Characters in a String",
         "Remove Duplicate Characters from a String", "Check if Two Strings are Anagrams", "Find the First Non-Repeating Character"
       ]},
-      { name: "📦 Arrays", items: [
+      { name: "Arrays", items: [
         "Find the Largest Element in an Array", "Find the Smallest Element in an Array", "Find the Second Largest Element in an Array",
         "Find the Second Smallest Element in an Array", "Find the Sum of Array Elements", "Reverse an Array", "Check if an Array is Sorted",
         "Remove Duplicates from an Array", "Find Duplicate Elements in an Array", "Find Missing Number in an Array",
@@ -24,7 +24,7 @@ window.TRACKS = [
         "Find Intersection of Two Arrays", "Find Union of Two Arrays", "Move All Zeros to the End",
         "Find Maximum and Minimum Difference", "Find Pair with Given Sum"
       ]},
-      { name: "🧩 Additional Fundamentals", items: [
+      { name: "Additional Fundamentals", items: [
         "Find the Largest and Smallest Element in an Array", "Find the Average of Elements in an Array",
         "Rotate an Array to the Left by One Position", "Rotate an Array to the Right by One Position",
         "Find the Sum of Even and Odd Numbers in an Array", "Count Even and Odd Numbers in an Array",
@@ -36,7 +36,7 @@ window.TRACKS = [
   },
 
   {
-    id: "sd", name: "System Design", emoji: "🏗️", xp: 50, accent: "blue",
+    id: "sd", name: "System Design", xp: 50, accent: "blue",
     tagline: "Arpit Bhayani — System Design for Beginners & Masterclass",
     itemWord: "video",
     groups: [
@@ -56,7 +56,7 @@ window.TRACKS = [
   },
 
   {
-    id: "fs", name: "Full-stack", emoji: "⚙️", xp: 60, accent: "amber",
+    id: "fs", name: "Full-stack", xp: 60, accent: "amber",
     tagline: "Frontend · Backend · Database · DevOps — topics to revise",
     itemWord: "topic",
     groups: [
@@ -240,7 +240,7 @@ window.TRACKS = [
   },
 
   {
-    id: "other", name: "Other", emoji: "✨", xp: 40, accent: "purple",
+    id: "other", name: "Other", xp: 40, accent: "purple",
     tagline: "Suggested next topics — add your own too",
     itemWord: "topic", allowCustom: true,
     groups: [

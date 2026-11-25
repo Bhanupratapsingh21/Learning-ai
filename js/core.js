@@ -212,23 +212,23 @@
     const boards = Object.values(state.sessions).filter((x) => x.boarded).length;
     const onTime = Object.entries(state.sessions).some(([id, x]) => x.completedOn && byId[id] && x.completedOn <= byId[id].originalDate);
     const list = [
-      { icon: "🚀", name: "Lift-off", desc: "Warm-up done", got: statusOf("w0s1") === "done" },
-      { icon: "🔥", name: "Kindling", desc: "3-day streak", got: st.best >= 3 },
-      { icon: "⚡", name: "On a roll", desc: "7-day streak", got: st.best >= 7 },
-      { icon: "🌋", name: "Unstoppable", desc: "14-day streak", got: st.best >= 14 },
-      { icon: "🧱", name: "Basics", desc: "Week 1 complete", got: weekDone(1) },
-      { icon: "🛠️", name: "Engineer", desc: "Week 2 complete", got: weekDone(2) },
-      { icon: "🤖", name: "Agent smith", desc: "Week 3 complete", got: weekDone(3) },
-      { icon: "📏", name: "Measurer", desc: "Week 4 complete", got: weekDone(4) },
-      { icon: "📚", name: "Retriever", desc: "Week 5 complete", got: weekDone(5) },
-      { icon: "📈", name: "Improver", desc: "Week 6 complete", got: weekDone(6) },
-      { icon: "🦾", name: "Operator", desc: "Week 7 complete", got: weekDone(7) },
-      { icon: "🛡️", name: "Hardened", desc: "Week 8 complete", got: weekDone(8) },
-      { icon: "🎤", name: "Interview ready", desc: "Week 9 complete", got: weekDone(9) },
-      { icon: "📝", name: "Scribe", desc: "10 notes written", got: notes >= 10 },
-      { icon: "🎨", name: "Sketcher", desc: "Used the whiteboard 5×", got: boards >= 5 },
-      { icon: "⏰", name: "Ahead of plan", desc: "Finish a session on/before its original date", got: onTime },
-      { icon: "📣", name: "Shipper", desc: "Job-track item ticked", got: Object.values(state.job).some(Boolean) }
+      { name: "Lift-off", desc: "Warm-up done", got: statusOf("w0s1") === "done" },
+      { name: "Kindling", desc: "3-day streak", got: st.best >= 3 },
+      { name: "On a roll", desc: "7-day streak", got: st.best >= 7 },
+      { name: "Unstoppable", desc: "14-day streak", got: st.best >= 14 },
+      { name: "Basics", desc: "Week 1 complete", got: weekDone(1) },
+      { name: "Engineer", desc: "Week 2 complete", got: weekDone(2) },
+      { name: "Agent smith", desc: "Week 3 complete", got: weekDone(3) },
+      { name: "Measurer", desc: "Week 4 complete", got: weekDone(4) },
+      { name: "Retriever", desc: "Week 5 complete", got: weekDone(5) },
+      { name: "Improver", desc: "Week 6 complete", got: weekDone(6) },
+      { name: "Operator", desc: "Week 7 complete", got: weekDone(7) },
+      { name: "Hardened", desc: "Week 8 complete", got: weekDone(8) },
+      { name: "Interview ready", desc: "Week 9 complete", got: weekDone(9) },
+      { name: "Scribe", desc: "10 notes written", got: notes >= 10 },
+      { name: "Sketcher", desc: "Used the whiteboard 5×", got: boards >= 5 },
+      { name: "Ahead of plan", desc: "Finish a session on/before its original date", got: onTime },
+      { name: "Shipper", desc: "Job-track item ticked", got: Object.values(state.job).some(Boolean) }
     ];
     return list;
   }
