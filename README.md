@@ -1,8 +1,18 @@
 # Learning AI
 
-A minimalist tracker for my **AI Full-Stack / FDE Roadmap**: Warm-up + 9 weeks, 54 sessions.
+A minimalist learning tracker. The home page is a hub with five tracks:
 
-## What it does
+- **AI**: the AI Full-Stack / FDE Roadmap (Warm-up + 9 weeks, 54 sessions), with the auto-adjusting schedule described below
+- **DSA**: 50 fundamentals (numbers, strings, arrays), with a code-notes field for each question
+- **System Design**: the 36 videos of Arpit Bhayani's System Design course, grouped by topic
+- **Full-stack**: Frontend, Backend, Database and DevOps topics to revise, each with a checklist; includes an AWS ↔ GCP service table and blog posts to write
+- **Other**: suggested next topics, plus any topics you add yourself
+
+Every DSA question, video and topic has a status (to do, in progress, done), notes, a checklist, and "Let's start", which opens the same whiteboard and timer as the AI sessions. The hub shows an overall streak and XP that count all tracks.
+
+Track progress is stored under its own key (`lai.tracks.v1`), separate from the AI roadmap data (`lai.state.v1`).
+
+## AI track
 
 - **Dashboard**: today's session, last and next sessions, start date and *projected* end date, streak, XP and level, a 7-day strip, an activity heatmap, quick notes, a Job Track nudge and badges.
 - **Auto-adjusting schedule**: the next pending session is always placed on today (or tomorrow if you already finished one today). Every later session takes the next day, and the day after each week's Session 6 is that week's free day. Miss a day and everything shifts forward by one day; finish two in a day and everything pulls in.
@@ -33,6 +43,8 @@ The whiteboard loads React and Excalidraw from unpkg the first time, so it needs
 ## Files
 
 - `js/data.js`: the roadmap content, transcribed from the PDF
+- `js/tracks-data.js`: the DSA, System Design, Full-stack and Other lists. Item ids are numbered, so to keep saved progress, only add new items at the end of a list.
+- `js/tracks.js`: storage and stats for those tracks
 - `js/core.js`: storage, schedule, streaks, XP and badges
 - `js/app.js`: views and router
 - `js/board.js`: Excalidraw whiteboard

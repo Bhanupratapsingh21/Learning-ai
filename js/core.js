@@ -271,18 +271,23 @@
         const k = localStorage.key(i);
         if (k.startsWith(BOARD_PREFIX)) boards[k] = localStorage.getItem(k);
       }
-      return JSON.stringify({ app: "learning-ai", exportedAt: new Date().toISOString(), state, boards }, null, 2);
+      const tracks = window.Tracks ? window.Tracks.state : null;
+      return JSON.stringify({ app: "learning-ai", exportedAt: new Date().toISOString(), state, tracks, boards }, null, 2);
     },
     importAll(json) {
       const data = JSON.parse(json);
       if (!data.state || data.state.version !== 1) throw new Error("Not a Learning AI backup file");
       state = data.state;
       for (const [k, v] of Object.entries(data.boards || {})) localStorage.setItem(k, v);
+      // older backups have no `tracks` — keep the current track progress in that case
+      if (data.tracks && window.Tracks) window.Tracks.replace(data.tracks);
       save();
     },
     reset() {
       Object.keys(localStorage).filter((k) => k.startsWith("lai.")).forEach((k) => localStorage.removeItem(k));
-      state = defaultState(); save();
+      state = defaultState();
+      if (window.Tracks) window.Tracks.replace(null);
+      save();
     }
   };
 

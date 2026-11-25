@@ -8,7 +8,7 @@
   ];
   window.EXCALIDRAW_ASSET_PATH = "https://unpkg.com/@excalidraw/excalidraw@0.17.6/dist/";
 
-  let loading = null, root = null, api = null, currentId = null, saveTimer = null;
+  let loading = null, root = null, api = null, currentId = null, saveTimer = null, onUsed = null;
   const loadScript = (src) => new Promise((res, rej) => {
     const s = document.createElement("script"); s.src = src; s.crossOrigin = "anonymous";
     s.onload = res; s.onerror = () => rej(new Error("Failed to load " + src)); document.head.appendChild(s);
@@ -28,15 +28,17 @@
     };
     try {
       localStorage.setItem(C.BOARD_PREFIX + id, JSON.stringify(data));
-      if (data.elements.length) C.actions.markBoarded(id);
+      if (data.elements.length && onUsed) onUsed(id);
     } catch (e) {
       window.toast && toast("Whiteboard too large for browser storage — remove big images.");
     }
   }
 
-  async function mount(el, id) {
+  // opts.onUsed(id) is called once the board has content (used for XP / badges).
+  async function mount(el, id, opts = {}) {
     unmount();
     currentId = id;
+    onUsed = opts.onUsed || null;
     try { await ensureLibs(); }
     catch (e) {
       el.innerHTML = `<div class="loading" style="padding:24px;text-align:center">Couldn't load the whiteboard (needs internet the first time).<br><span class="small muted">Your notes panel still works.</span></div>`;
@@ -80,7 +82,7 @@
       try { write(currentId, api.getSceneElementsIncludingDeleted(), api.getAppState(), api.getFiles()); } catch (e) {}
     }
     if (root) { try { root.unmount(); } catch (e) {} }
-    root = null; api = null; currentId = null;
+    root = null; api = null; currentId = null; onUsed = null;
   }
 
   function setTheme(t) {

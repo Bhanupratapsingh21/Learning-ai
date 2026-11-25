@@ -23,7 +23,12 @@
     next: I('<path d="M9 18l6-6-6-6"/>'),
     panel: I('<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M15 3v18"/>'),
     pause: I('<path d="M8 5v14M16 5v14"/>'),
-    reset: I('<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>')
+    reset: I('<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>'),
+    spark: I('<path d="M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>'),
+    code: I('<path d="m8 8-4 4 4 4M16 8l4 4-4 4M14 4l-4 16"/>'),
+    layers: I('<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>'),
+    server: I('<rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/>'),
+    plus: I('<path d="M12 5v14M5 12h14"/>')
   };
 
   /* ---------- helpers ---------- */
@@ -165,7 +170,8 @@
       </a>` : `<div class="card"><div class="label">${lbl}</div><div class="muted small" style="margin-top:6px">—</div></div>`;
 
     app.innerHTML = `<div class="wrap">
-      <div class="hello"><h1>Hey, <span class="avatar"><i></i><i></i></span> <span class="under">${esc(name)}</span></h1></div>
+      <a class="small muted row" href="#/" style="gap:4px;margin-bottom:14px">${ICON.back.replace("<svg", '<svg width="14" height="14"')} All tracks</a>
+      <h1>✨ AI</h1>
       <div class="muted">${esc(R.title)} — Learn, build, ship.</div>
       <div class="small faint" style="margin-top:2px">${esc(R.stack)}</div>
 
@@ -310,6 +316,282 @@
   function bindCommon() {
     $$("[data-done]").forEach((b) => b.onclick = () => { completeSession(b.dataset.done); route(); });
     $$("[data-copyprompt]").forEach((b) => b.onclick = () => copy(tutorPrompt(C.byId[b.dataset.copyprompt]), "Tutor prompt copied — paste it into your AI"));
+  }
+
+  /* ================= HUB (home) ================= */
+  const T = window.Tracks;
+  const crumb = (href, label) => `<a class="small muted row" href="${href}" style="gap:4px;margin-bottom:14px">${ICON.back.replace("<svg", '<svg width="14" height="14"')} ${esc(label)}</a>`;
+  const totalXp = () => C.xp() + T.xp();
+
+  function viewHub() {
+    const name = C.state.settings.name || "there";
+    const sum = C.summary();
+    const os = T.overallStreak();
+    const xp = totalXp(), lv = C.level(xp);
+    const all = T.list.map((t) => T.stats(t.id));
+    const doneAll = sum.doneCount + all.reduce((a, s) => a + s.done, 0);
+    const totalAll = sum.total + all.reduce((a, s) => a + s.total, 0);
+
+    const aiNext = sum.next;
+    const aiCard = `<a class="card track-card" href="#/ai">
+      <div class="row between"><span class="tc-emoji">✨</span><span class="chip blue">${sum.pct}%</span></div>
+      <h3 style="margin-top:10px">AI</h3>
+      <div class="small muted">AI Full-Stack / FDE roadmap · ends ${D.fmt(sum.end)}</div>
+      <div class="bar" style="margin-top:12px"><i style="width:${sum.pct}%"></i></div>
+      <div class="small" style="margin-top:10px">${aiNext ? `<span class="muted">${aiNext.date === sum.today ? "Today" : D.fmt(aiNext.date)}:</span> W${aiNext.s.week}·S${aiNext.s.num} ${esc(aiNext.s.title)}` : "Roadmap complete 🎓"}</div>
+      <div class="tiny faint" style="margin-top:4px">${sum.doneCount}/${sum.total} sessions</div>
+    </a>`;
+
+    const trackCard = (t) => {
+      const s = T.stats(t.id);
+      return `<a class="card track-card" href="#/t/${t.id}">
+        <div class="row between"><span class="tc-emoji">${t.emoji}</span><span class="chip ${s.pct === 100 ? "green" : ""}">${s.pct}%</span></div>
+        <h3 style="margin-top:10px">${esc(t.name)}</h3>
+        <div class="small muted">${esc(t.tagline)}</div>
+        <div class="bar green" style="margin-top:12px"><i style="width:${s.pct}%"></i></div>
+        <div class="small" style="margin-top:10px">${s.next ? `<span class="muted">${T.statusOf(s.next.id) === "doing" ? "In progress" : "Next"}:</span> ${esc(s.next.title)}` : "All done 🎉"}</div>
+        <div class="tiny faint" style="margin-top:4px">${s.done}/${s.total} ${t.itemWord}s</div>
+      </a>`;
+    };
+
+    app.innerHTML = `<div class="wrap">
+      <div class="hello"><h1>Hey, <span class="avatar"><i></i><i></i></span> <span class="under">${esc(name)}</span></h1></div>
+      <div class="muted">What are we learning today?</div>
+      <div class="small faint" style="margin-top:2px">AI · DSA · System Design · Full-stack</div>
+
+      <div class="section grid4">
+        <div class="stat"><div class="v"><span class="flame ${os.today ? "on" : ""}">🔥</span> ${os.current}</div><div class="k">day streak, all tracks</div></div>
+        <div class="stat"><div class="v">${xp.toLocaleString()}</div><div class="k">total XP · Lv ${lv.n}</div></div>
+        <div class="stat"><div class="v">${os.today}</div><div class="k">finished today</div></div>
+        <div class="stat"><div class="v">${Math.round((doneAll / totalAll) * 100)}%</div><div class="k">${doneAll}/${totalAll} overall</div></div>
+      </div>
+      <div class="card soft" style="margin-top:10px;padding:12px 14px">
+        <div class="row between small"><span><b>Lv ${lv.n}</b> · ${esc(lv.title)}</span><span class="muted">${lv.max ? "Max level" : `${(lv.ceil - xp).toLocaleString()} XP to Lv ${lv.n + 1}`}</span></div>
+        <div class="bar" style="margin-top:8px"><i style="width:${Math.round(lv.pct * 100)}%"></i></div>
+      </div>
+
+      <div class="section"><div class="section-title"><h2>Tracks</h2></div>
+        <div class="grid2">${aiCard}${T.list.filter((t) => t.id !== "other").map(trackCard).join("")}${trackCard(T.byId.other)}</div>
+      </div>
+
+      <div class="section"><div class="section-title"><h2>Quick notes</h2><a class="small muted" href="#/notes">All notes →</a></div>
+        <textarea class="note" id="qn" placeholder="Jot something down… (Ctrl+Enter to save)"></textarea>
+        <div class="row between" style="margin-top:8px"><span class="tiny faint">Saved on this device only</span><button class="btn sm primary" id="qnSave">Save note</button></div>
+        <div style="margin-top:12px" id="qnList">${quickNotes(3)}</div>
+      </div>
+    </div>`;
+    const qn = $("#qn");
+    const saveQ = () => { const v = qn.value.trim(); if (!v) return; C.actions.addQuickNote(v); qn.value = ""; $("#qnList").innerHTML = quickNotes(3); bindQuick(); toast("Note saved · +5 XP"); };
+    $("#qnSave").onclick = saveQ;
+    qn.addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) saveQ(); });
+    bindQuick();
+  }
+
+  /* ================= TRACK LIST ================= */
+  let trackFilter = "all";
+  function completeTrackItem(t, it) {
+    const before = C.level(totalXp());
+    T.actions.setStatus(it.id, "done");
+    const after = C.level(totalXp());
+    confetti();
+    const s = T.stats(t.id), os = T.overallStreak();
+    modal(`<div class="big">${after.n > before.n ? "🏆" : t.emoji}</div>
+      <h2 style="margin:6px 0 4px">${after.n > before.n ? `Level ${after.n} — ${esc(after.title)}` : "Nice — done!"}</h2>
+      <p class="muted" style="margin:0 0 4px">${esc(it.title)}</p>
+      <p style="margin:10px 0"><span class="chip blue">+${t.xp} XP</span> <span class="chip amber">🔥 ${os.current}-day streak</span></p>
+      <p class="small muted">${esc(t.name)}: ${s.done}/${s.total}${s.next ? ` · next: <b>${esc(s.next.title)}</b>` : " — track complete!"}</p>
+      <div class="actions" style="justify-content:center">${s.next ? `<a class="btn primary" data-close href="#/t/${t.id}/${s.next.id}">Next ${t.itemWord}</a>` : ""}<button class="btn" data-close>Close</button></div>`);
+  }
+
+  function viewTrack(tid) {
+    const t = T.byId[tid]; if (!t) return viewNotFound();
+    const s = T.stats(tid);
+    const groups = T.groupsOf(tid);
+    const nxt = s.next;
+    const row = (it) => {
+      const st = T.statusOf(it.id);
+      const show = trackFilter === "all" || (trackFilter === "done" ? st === "done" : st !== "done");
+      return `<div class="srow ${nxt && nxt.id === it.id ? "current" : ""} ${show ? "" : "hidden"}" data-open="${it.id}">
+        <button class="status-ico ${st === "done" ? "done" : st === "doing" ? "now" : ""}" data-tick="${it.id}" title="${st === "done" ? "Mark not done" : "Mark done"}" style="padding:0;background-clip:padding-box">${st === "done" ? "✓" : ""}</button>
+        <span class="num">#${it.n}</span>
+        <span class="title">${esc(it.title)}</span>
+        ${st === "doing" ? `<span class="chip blue">in progress</span>` : ""}
+        ${T.rec(it.id).notes ? `<span class="tiny faint" title="Has notes">📝</span>` : ""}
+      </div>`;
+    };
+    app.innerHTML = `<div class="wrap">
+      ${crumb("#/", "All tracks")}
+      <h1>${t.emoji} ${esc(t.name)}</h1>
+      <div class="muted">${esc(t.tagline)}</div>
+      <div class="row" style="margin-top:14px"><div class="bar green grow"><i style="width:${s.pct}%"></i></div><span class="small mono">${s.done}/${s.total}</span></div>
+
+      ${nxt ? `<div class="section"><div class="card hero">
+        <div class="row between"><span class="chip ${T.statusOf(nxt.id) === "doing" ? "blue" : ""}">${T.statusOf(nxt.id) === "doing" ? "In progress" : "Up next"}</span><span class="tiny faint">#${nxt.n} · ${esc(nxt.group)}</span></div>
+        <h2 style="margin:10px 0 4px">${esc(nxt.title)}</h2>
+        ${nxt.sub.length ? `<ul class="learn-preview">${nxt.sub.slice(0, 4).map((x) => `<li>${esc(x)}</li>`).join("")}${nxt.sub.length > 4 ? `<li>+${nxt.sub.length - 4} more</li>` : ""}</ul>` : ""}
+        <div class="actions">
+          <a class="btn primary" href="#/ts/${tid}/${nxt.id}">${ICON.play} Let's start</a>
+          <button class="btn" data-donebig="${nxt.id}">${ICON.check} Mark done</button>
+          <a class="btn" href="#/t/${tid}/${nxt.id}">Details</a>
+        </div></div></div>` : `<div class="section"><div class="card hero"><h2>Track complete 🎉</h2><p class="muted">Every ${t.itemWord} is done.</p></div></div>`}
+
+      <div class="section row" id="filters">
+        ${["all", "todo", "done"].map((f) => `<button class="btn sm ${trackFilter === f ? "primary" : ""}" data-filter="${f}">${f === "all" ? "All" : f === "todo" ? "To do" : "Done"}</button>`).join("")}
+      </div>
+
+      ${groups.map((g) => {
+        const gd = g.items.filter((i) => T.statusOf(i.id) === "done").length;
+        return `<div class="week-block"><div class="row between" style="margin-bottom:6px"><h3>${esc(g.name)}</h3><span class="small muted mono">${gd}/${g.items.length}</span></div>
+          ${g.items.map(row).join("")}</div>`;
+      }).join("")}
+
+      ${t.allowCustom ? `<div class="section"><div class="card"><h3>Add your own topic</h3>
+        <input class="field" id="ctitle" placeholder="Topic, e.g. Redis internals" style="margin-top:10px">
+        <textarea class="note" id="csub" placeholder="Sub-topics, one per line (optional)" style="margin-top:8px;min-height:70px"></textarea>
+        <div class="row" style="margin-top:8px;justify-content:flex-end"><button class="btn sm primary" id="cadd">${ICON.plus} Add topic</button></div></div></div>` : ""}
+
+      ${t.tips ? `<div class="section"><div class="card soft"><div class="label">Tips</div><ul class="learn-preview">${t.tips.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div></div>` : ""}
+    </div>`;
+
+    $$("[data-open]").forEach((r) => r.onclick = (e) => { if (!e.target.closest("[data-tick]")) location.hash = `#/t/${tid}/${r.dataset.open}`; });
+    $$("[data-tick]").forEach((b) => b.onclick = (e) => {
+      e.stopPropagation();
+      const id = b.dataset.tick;
+      if (T.statusOf(id) === "done") { T.actions.setStatus(id, "todo"); viewTrack(tid); }
+      else { T.actions.setStatus(id, "done"); toast(`✓ ${T.item(tid, id).title} · +${t.xp} XP`); viewTrack(tid); }
+    });
+    $$("[data-donebig]").forEach((b) => b.onclick = () => { completeTrackItem(t, T.item(tid, b.dataset.donebig)); viewTrack(tid); });
+    $$("[data-filter]").forEach((b) => b.onclick = () => { trackFilter = b.dataset.filter; viewTrack(tid); });
+    if ($("#cadd")) $("#cadd").onclick = () => {
+      const title = $("#ctitle").value.trim(); if (!title) return toast("Give the topic a name");
+      const sub = $("#csub").value.split("\n").map((x) => x.trim()).filter(Boolean);
+      T.actions.addCustom(tid, title, sub); toast("Topic added"); viewTrack(tid);
+    };
+  }
+
+  /* ================= TRACK ITEM ================= */
+  function trackChecklist(it) {
+    const ch = T.rec(it.id).checks || {};
+    return `<ul class="checks">${it.sub.map((x, i) => `<li class="${ch["c" + i] ? "on" : ""}" data-tcheck="c${i}"><span class="box"></span><span class="txt">${esc(x)}</span></li>`).join("")}</ul>`;
+  }
+  function bindTrackChecks(it) {
+    $$("[data-tcheck]").forEach((li) => li.onclick = () => { T.actions.toggleCheck(it.id, li.dataset.tcheck); li.classList.toggle("on"); });
+  }
+  function bindTrackNotes(it) {
+    let tmr;
+    $("#tnote").addEventListener("input", (e) => { clearTimeout(tmr); $("#saved").textContent = "saving…"; tmr = setTimeout(() => { T.actions.setNotes(it.id, e.target.value); $("#saved").textContent = "saved ✓"; }, 400); });
+    $("#copyNote").onclick = () => copy($("#tnote").value || "");
+    // Tab inserts spaces in code notes instead of leaving the field
+    $("#tnote").addEventListener("keydown", (e) => {
+      if (e.key !== "Tab" || !e.target.classList.contains("mono")) return;
+      e.preventDefault(); const ta = e.target, s = ta.selectionStart;
+      ta.value = ta.value.slice(0, s) + "  " + ta.value.slice(ta.selectionEnd); ta.selectionStart = ta.selectionEnd = s + 2;
+      ta.dispatchEvent(new Event("input"));
+    });
+  }
+  const refTable = (tb) => `<div class="tablewrap"><table class="t"><thead><tr>${tb.head.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead>
+    <tbody>${tb.rows.map((r) => `<tr>${r.map((c, i) => `<td${i === 0 ? ' class="muted"' : ""}>${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+
+  function viewTrackItem(tid, id) {
+    const t = T.byId[tid], it = t && T.item(tid, id); if (!it) return viewNotFound();
+    const r = T.rec(id), st = T.statusOf(id);
+    const all = T.itemsOf(tid), idx = all.findIndex((x) => x.id === id);
+    const prev = all[idx - 1], nxt = all[idx + 1];
+    app.innerHTML = `<div class="wrap">
+      ${crumb(`#/t/${tid}`, t.name)}
+      <div class="label">${esc(t.name)} · ${esc(it.group)} · #${it.n}</div>
+      <h1 style="margin-top:6px">${esc(it.title)}</h1>
+      <div class="row" style="margin-top:8px">
+        <span class="chip ${st === "done" ? "green" : st === "doing" ? "blue" : ""}">${st === "done" ? "✓ Done" : st === "doing" ? "In progress" : "To do"}</span>
+        ${r.doneOn ? `<span class="small muted">finished ${D.fmt(r.doneOn)}</span>` : ""}
+      </div>
+      <div class="actions">
+        <a class="btn primary" href="#/ts/${tid}/${id}">${ICON.play} Let's start</a>
+        ${st !== "done" ? `<button class="btn" id="idone">${ICON.check} Mark done</button>` : `<button class="btn" data-ist="todo">Mark not done</button>`}
+        ${st === "todo" ? `<button class="btn ghost" data-ist="doing">Mark in progress</button>` : ""}
+        ${it.custom ? `<button class="btn ghost" id="iremove" style="color:var(--red)">Remove topic</button>` : ""}
+      </div>
+      ${it.sub.length ? `<div class="section"><h3>${tid === "sd" ? "Checklist" : "Cover"}</h3><div style="margin-top:8px">${trackChecklist(it)}</div></div>` : ""}
+      ${it.done ? `<div class="section"><div class="done-when"><div class="label" style="color:var(--green)">Done when</div>${esc(it.done)}</div></div>` : ""}
+      ${it.table ? `<div class="section"><h3>Reference</h3><div style="margin-top:8px">${refTable(it.table)}</div></div>` : ""}
+      <div class="section"><div class="section-title"><h3>${t.codeNotes ? "Approach & code" : "Notes"}</h3><span class="tiny faint" id="saved">autosaves</span></div>
+        <textarea class="note ${t.codeNotes ? "mono" : ""}" id="tnote" style="min-height:${t.codeNotes ? 240 : 160}px" placeholder="${t.codeNotes ? "Approach, code, time & space complexity, edge cases…" : "Key takeaways, trade-offs, links…"}">${esc(r.notes || "")}</textarea>
+        <div class="row" style="margin-top:8px"><button class="btn sm" id="copyNote">${ICON.copy} Copy</button>
+        ${localStorage.getItem(C.BOARD_PREFIX + "t." + id) ? `<a class="btn sm" href="#/ts/${tid}/${id}">🎨 Open whiteboard</a>` : ""}</div>
+      </div>
+      <div class="section row between">
+        ${prev ? `<a class="btn sm" href="#/t/${tid}/${prev.id}">← #${prev.n}</a>` : "<span></span>"}
+        ${nxt ? `<a class="btn sm" href="#/t/${tid}/${nxt.id}">#${nxt.n} →</a>` : ""}
+      </div>
+    </div>`;
+    bindTrackChecks(it); bindTrackNotes(it);
+    if ($("#idone")) $("#idone").onclick = () => { completeTrackItem(t, it); viewTrackItem(tid, id); };
+    $$("[data-ist]").forEach((b) => b.onclick = () => { T.actions.setStatus(id, b.dataset.ist); viewTrackItem(tid, id); });
+    if ($("#iremove")) $("#iremove").onclick = () => { if (confirm("Remove this topic and its notes?")) { T.actions.removeCustom(tid, id); location.hash = `#/t/${tid}`; } };
+  }
+
+  /* ================= TRACK STUDY (whiteboard) ================= */
+  function viewTrackStudy(tid, id) {
+    const t = T.byId[tid], it = t && T.item(tid, id); if (!it) return viewNotFound();
+    document.body.classList.add("studying");
+    if (T.statusOf(id) === "todo") T.actions.setStatus(id, "doing");
+    const r = T.rec(id);
+    const TKEY = "lai.timer.t." + id;
+    let tstate; try { tstate = JSON.parse(sessionStorage.getItem(TKEY)) || null; } catch (e) { tstate = null; }
+    tstate = tstate || { elapsed: 0, running: false, since: null };
+    app.innerHTML = `<div class="study">
+      <div class="study-bar">
+        <a class="icon-btn" href="#/t/${tid}/${id}" title="Back">${ICON.back}</a>
+        <div class="ttl"><div class="tiny muted">${t.emoji} ${esc(t.name)} · #${it.n}</div><b>${esc(it.title)}</b></div>
+        <span class="timer" id="timer">00:00</span>
+        <button class="icon-btn" id="tToggle" title="Start / pause timer">${ICON.play}</button>
+        <button class="icon-btn" id="tReset" title="Reset timer">${ICON.reset}</button>
+        ${T.statusOf(id) !== "done" ? `<button class="btn sm primary" id="studyDone">${ICON.check} Complete</button>` : `<span class="chip green">✓ Done</span>`}
+        <button class="icon-btn" id="sideToggle" title="Checklist & notes panel">${ICON.panel}</button>
+      </div>
+      <div class="study-main">
+        <div class="board" id="board"><div class="loading">Loading whiteboard…</div></div>
+        <aside class="side" id="side">
+          <div class="tabs"><button class="${it.sub.length || it.table ? "on" : ""}" data-tab="session">${it.sub.length ? "Checklist" : "Topic"}</button><button class="${it.sub.length || it.table ? "" : "on"}" data-tab="notes">${t.codeNotes ? "Code" : "Notes"}</button></div>
+          <div class="side-body ${it.sub.length || it.table ? "" : "hidden"}" id="tab-session">
+            ${it.sub.length ? trackChecklist(it) : `<p class="small muted">${esc(it.title)}</p>`}
+            ${it.done ? `<div class="done-when small" style="margin-top:14px"><b>Done when</b> — ${esc(it.done)}</div>` : ""}
+            ${it.table ? `<div style="margin-top:14px">${refTable(it.table)}</div>` : ""}
+          </div>
+          <div class="side-body ${it.sub.length || it.table ? "hidden" : ""}" id="tab-notes">
+            <textarea class="note ${t.codeNotes ? "mono" : ""}" id="tnote" placeholder="${t.codeNotes ? "Approach, code, complexity…" : "Notes — autosaved to this device."}">${esc(r.notes || "")}</textarea>
+            <div class="row between" style="margin-top:8px"><span class="tiny faint" id="saved">autosaves</span><button class="btn sm" id="copyNote">${ICON.copy} Copy</button></div>
+          </div>
+        </aside>
+      </div>
+    </div>`;
+    bindTrackChecks(it); bindTrackNotes(it);
+    if (innerWidth < 820) $("#side").classList.add("closed");
+    $("#sideToggle").onclick = () => $("#side").classList.toggle("closed");
+    $$("[data-tab]").forEach((b) => b.onclick = () => {
+      $$("[data-tab]").forEach((x) => x.classList.toggle("on", x === b));
+      $("#tab-session").classList.toggle("hidden", b.dataset.tab !== "session");
+      $("#tab-notes").classList.toggle("hidden", b.dataset.tab !== "notes");
+    });
+    const doneBtn = $("#studyDone");
+    if (doneBtn) doneBtn.onclick = () => { completeTrackItem(t, it); const el = $("#studyDone"); if (el) el.outerHTML = `<span class="chip green">✓ Done</span>`; };
+
+    const elapsed = () => tstate.elapsed + (tstate.running ? (Date.now() - tstate.since) / 1000 : 0);
+    const persist = () => sessionStorage.setItem(TKEY, JSON.stringify(tstate));
+    const paint = () => {
+      const e = Math.floor(elapsed()), el = $("#timer"); if (!el) return;
+      el.textContent = `${String(Math.floor(e / 60)).padStart(2, "0")}:${String(e % 60).padStart(2, "0")}`;
+      el.className = "timer " + (tstate.running ? "run" : "");
+      $("#tToggle").innerHTML = tstate.running ? ICON.pause : ICON.play;
+    };
+    $("#tToggle").onclick = () => {
+      if (tstate.running) { tstate.elapsed = elapsed(); tstate.running = false; } else { tstate.running = true; tstate.since = Date.now(); }
+      persist(); paint();
+    };
+    $("#tReset").onclick = () => { tstate = { elapsed: 0, running: false, since: null }; persist(); paint(); };
+    clearInterval(studyTimer); studyTimer = setInterval(paint, 1000); paint();
+
+    window.Board.mount($("#board"), "t." + id, { onUsed: () => T.actions.markBoarded(id) });
   }
 
   /* ================= ROADMAP ================= */
@@ -494,13 +776,14 @@
     $("#tReset").onclick = () => { tstate = { elapsed: 0, running: false, since: null }; persist(); paint(); };
     clearInterval(studyTimer); studyTimer = setInterval(paint, 1000); paint();
 
-    window.Board.mount($("#board"), id);
+    window.Board.mount($("#board"), id, { onUsed: (bid) => C.actions.markBoarded(bid) });
   }
 
   /* ================= NOTES ================= */
   function viewNotes() {
     const withNotes = C.sessions.filter((s) => (C.state.sessions[s.id] || {}).notes);
     if ((C.state.sessions.w0s1 || {}).notes) withNotes.unshift(C.byId.w0s1);
+    const trackNotes = T.list.flatMap((t) => T.itemsOf(t.id).filter((it) => (T.rec(it.id).notes || "").trim()).map((it) => ({ t, it })));
     app.innerHTML = `<div class="wrap">
       <h1>Notes</h1><div class="muted">Everything stays on this device.</div>
       <div class="section"><input class="field" id="search" placeholder="Search notes…"></div>
@@ -513,7 +796,12 @@
         ${withNotes.length ? withNotes.map((s) => `<a class="card" href="#/s/${s.id}" style="display:block" data-searchable>
           <div class="label">${esc(sessionLabel(s))}</div><div class="serif" style="font-size:18px">${esc(s.title)}</div>
           <div class="small muted" style="white-space:pre-wrap;margin-top:6px;max-height:120px;overflow:hidden">${esc(C.state.sessions[s.id].notes)}</div></a>`).join("") : `<p class="small faint">No session notes yet. Open a session and write your 3-line takeaway.</p>`}
-      </div></div>`;
+      </div>
+      ${trackNotes.length ? `<div class="section"><div class="section-title"><h2>Track notes</h2></div>
+        ${trackNotes.map(({ t, it }) => `<a class="card" href="#/t/${t.id}/${it.id}" style="display:block" data-searchable>
+          <div class="label">${t.emoji} ${esc(t.name)} · #${it.n}</div><div class="serif" style="font-size:18px">${esc(it.title)}</div>
+          <div class="small muted ${t.codeNotes ? "mono" : ""}" style="white-space:pre-wrap;margin-top:6px;max-height:120px;overflow:hidden">${esc(T.rec(it.id).notes)}</div></a>`).join("")}</div>` : ""}
+      </div>`;
     const qn = $("#qn");
     const saveQ = () => { const v = qn.value.trim(); if (!v) return; C.actions.addQuickNote(v); route(); toast("Note saved"); };
     $("#qnSave").onclick = saveQ;
@@ -523,7 +811,10 @@
       const q = e.target.value.toLowerCase();
       $$(".qnote, [data-searchable]").forEach((el) => el.classList.toggle("hidden", q && !el.textContent.toLowerCase().includes(q)));
     };
-    $("#copyAll").onclick = () => copy(withNotes.map((s) => `## ${sessionLabel(s)} — ${s.title}\n\n${C.state.sessions[s.id].notes}`).join("\n\n"), "All notes copied as Markdown");
+    $("#copyAll").onclick = () => copy(
+      withNotes.map((s) => `## ${sessionLabel(s)} — ${s.title}\n\n${C.state.sessions[s.id].notes}`)
+        .concat(trackNotes.map(({ t, it }) => `## ${t.name} #${it.n} — ${it.title}\n\n${T.rec(it.id).notes}`)).join("\n\n"),
+      "All notes copied as Markdown");
   }
 
   /* ================= JOB TRACK ================= */
@@ -597,7 +888,7 @@
     $("#setPos").onclick = () => {
       const id = $("#pos").value, s = C.byId[id];
       if (!confirm(`Set progress to Week ${s.week} · Session ${s.num}?`)) return;
-      C.actions.setPosition(id); toast(`Now at Week ${s.week} · Session ${s.num}`); location.hash = "#/";
+      C.actions.setPosition(id); toast(`Now at Week ${s.week} · Session ${s.num}`); location.hash = "#/ai";
     };
     $$("[data-date]").forEach((inp) => inp.onchange = () => { C.actions.setCompletedOn(inp.dataset.date, inp.value); toast("Date updated"); });
     $("#exp").onclick = () => {
@@ -615,18 +906,25 @@
   function viewNotFound() { app.innerHTML = `<div class="wrap"><h1>Not found</h1><a class="btn" href="#/">Home</a></div>`; }
 
   /* ---------- router ---------- */
-  const NAV = [["#/", "home", "Home"], ["#/roadmap", "map", "Roadmap"], ["#/notes", "note", "Notes"], ["#/job", "brief", "Job track"], ["#/settings", "gear", "Settings"]];
+  const NAV = [["#/", "home", "Home"], ["#/ai", "spark", "AI"], ["#/t/dsa", "code", "DSA"], ["#/t/sd", "layers", "System design"], ["#/t/fs", "server", "Full-stack"], ["#/notes", "note", "Notes"], ["#/settings", "gear", "Settings"]];
   function renderDock(hash) {
-    const base = "#/" + (hash.split("/")[1] || "");
-    const active = base === "#/s" ? "#/roadmap" : base;
+    const parts = hash.split("/");
+    const base = "#/" + (parts[1] || "");
+    let active = base;
+    if (["#/s", "#/roadmap", "#/job"].includes(base)) active = "#/ai";
+    if (base === "#/t" || base === "#/ts") active = parts[2] === "other" ? "#/" : `#/t/${parts[2]}`;
     $(".dock").innerHTML = NAV.map(([h, ic, lbl]) => `<a href="${h}" class="${active === h ? "active" : ""}" title="${lbl}">${ICON[ic]}<span>${lbl}</span></a>`).join("");
   }
   function route() {
     const hash = location.hash || "#/";
-    const [, page, arg] = hash.split("/");
-    if (page !== "study") { document.body.classList.remove("studying"); window.Board && window.Board.unmount(); clearInterval(studyTimer); }
+    const [, page, arg, arg2] = hash.split("/");
+    if (page !== "study" && page !== "ts") { document.body.classList.remove("studying"); window.Board && window.Board.unmount(); clearInterval(studyTimer); }
     renderDock(hash);
-    if (!page) viewHome();
+    if (!page) viewHub();
+    else if (page === "ai") viewHome();
+    else if (page === "t" && arg2) viewTrackItem(arg, arg2);
+    else if (page === "t") viewTrack(arg);
+    else if (page === "ts") viewTrackStudy(arg, arg2);
     else if (page === "roadmap") viewRoadmap();
     else if (page === "s") viewSession(arg);
     else if (page === "study") viewStudy(arg);
